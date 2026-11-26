@@ -3,7 +3,7 @@ import { downloadBackup, downloadWorkbook, readBackup, readWorkbook } from "../d
 import { useStore } from "../state/store"
 
 export function ExportPage() {
-  const { demo, state, replace, resetCurrent } = useStore()
+  const { demo, shared, state, replace, resetCurrent } = useStore()
   const [message, setMessage] = useState("")
   const [error, setError] = useState("")
 
@@ -19,7 +19,7 @@ export function ExportPage() {
       setError(result.error)
       return
     }
-    const ok = window.confirm(`${result.summary}\n\n确定用它替换这台浏览器里的正式台账？示例模式不受影响。`)
+    const ok = window.confirm(`${result.summary}\n\n确定用它替换${shared ? "共用" : "这台浏览器里的"}正式台账？示例模式不受影响。`)
     if (!ok) return
     replace({ ...result.state, drafts: state.drafts })
     setError("")
@@ -34,7 +34,11 @@ export function ExportPage() {
           ? "当前是示例模式。导出的文件会标明虚构，不要并进办公楼台账。"
           : "正式导出会按待审工作簿的工作表和列给出数值快照。填写示例那一页只留说明，不放 12,500 这些虚构数字。"}
       </p>
-      <p>试用数据只存在这台浏览器里。手机和电脑要各自打开；要把新登记带到另一台，请先导出，再在那边导入。预置的 12 份合同两边都会有，不用导入也能看。</p>
+      <p>
+        {shared
+          ? "正式台账存在共用服务里。一人确认写入后，其他人点「刷新」或重新打开页面就能看到。导出的 Excel 和 JSON 只作备份。"
+          : "当前没有连上共用台账，修改只在这台浏览器里。连上试用地址后，确认写入会进入同一本台账。"}
+      </p>
       <div className="row">
         <button className="btn" type="button" onClick={() => downloadWorkbook(state, demo ? "demo" : "live")}>导出 Excel</button>
         <button className="btn ghost" type="button" onClick={() => downloadBackup(state, demo ? "demo" : "live")}>导出 JSON 备份</button>

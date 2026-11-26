@@ -15,7 +15,7 @@ const KINDS: { kind: UploadKind; title: string; detail: string }[] = [
 ]
 
 export function HomePage({ go }: { go: (route: Route) => void }) {
-  const { demo, state, update, saveBlob, setNotice } = useStore()
+  const { demo, shared, state, update, saveBlob, setNotice } = useStore()
   const [reading, setReading] = useState("")
   const history = historicalSubtotal(state.contracts)
   const verifiedAmounts = state.contracts
@@ -106,7 +106,9 @@ export function HomePage({ go }: { go: (route: Route) => void }) {
         <p className="lead">
           {demo
             ? "这里的 12,500、5,000、7,500 全部是虚构的，用来看结算单怎么算。它和办公楼正式台账分开存放。"
-            : "先上传或手工填写，再在确认页核对。只有点「确认写入台账」才会入账。不确认，就不会变成已生效或已核验已付。"}
+            : shared
+              ? "这是共用台账。先上传或手工填写，再在确认页核对。只有点「确认写入台账」才会入账；其他人刷新后能看到同一份。不确认，就不会变成已生效或已核验已付。"
+              : "先上传或手工填写，再在确认页核对。只有点「确认写入台账」才会入账。不确认，就不会变成已生效或已核验已付。当前没有连上共用台账，写入只留在这台浏览器。"}
         </p>
         <div className="upload-list">
           {KINDS.map((item) => (

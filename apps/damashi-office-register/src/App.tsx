@@ -27,13 +27,13 @@ export function App() {
 }
 
 function Shell() {
-  const { ready, demo, notice, persistError, state, setDemo } = useStore()
+  const { ready, shared, demo, notice, persistError, state, setDemo, reload, logout } = useStore()
   const [route, go] = useRoute()
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [route])
   if (!ready) {
-    return <p className="boot">正在打开这台浏览器里的台账…</p>
+    return <p className="boot">{shared ? "正在打开共用台账…" : "正在打开台账…"}</p>
   }
   return (
     <div className={demo ? "app demo-mode" : "app"}>
@@ -42,16 +42,28 @@ function Shell() {
           <p className="brand">黛玛诗办公楼</p>
           <p className="brand-sub">合同 · 发票 · 结算登记</p>
         </div>
-        <button
-          className={demo ? "btn" : "btn ghost"}
-          type="button"
-          onClick={() => {
-            if (!demo && !window.confirm("进入示例模式。12,500 / 5,000 / 7,500 是虚构数字，不会写入办公楼台账。")) return
-            setDemo(!demo)
-          }}
-        >
-          {demo ? "返回正式台账" : "示例模式"}
-        </button>
+        <div className="top-actions">
+          {shared && !demo && (
+            <button className="btn ghost" type="button" onClick={() => void reload()}>
+              刷新
+            </button>
+          )}
+          <button
+            className={demo ? "btn" : "btn ghost"}
+            type="button"
+            onClick={() => {
+              if (!demo && !window.confirm("进入示例模式。12,500 / 5,000 / 7,500 是虚构数字，不会写入办公楼台账。")) return
+              setDemo(!demo)
+            }}
+          >
+            {demo ? "返回正式台账" : "示例模式"}
+          </button>
+          {shared && (
+            <button className="btn ghost" type="button" onClick={() => void logout()}>
+              退出
+            </button>
+          )}
+        </div>
       </header>
       {demo && <p className="demo-banner">示例模式 · 虚构数据，和办公楼正式台账分开。不要把 12,500 / 5,000 / 7,500 抄进正式结算。</p>}
       {persistError && <p className="callout danger banner">{persistError}</p>}

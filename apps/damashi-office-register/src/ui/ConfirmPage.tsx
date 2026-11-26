@@ -8,7 +8,7 @@ import { FieldBadge } from "./bits"
 import type { Route } from "./router"
 
 export function ConfirmPage({ id, go }: { id: string; go: (route: Route) => void }) {
-  const { state, update, replace, openBlob, setNotice } = useStore()
+  const { state, update, replace, openBlob, setNotice, whenSaved } = useStore()
   const draft = state.drafts.find((item) => item.id === id)
   const [target, setTarget] = useState("")
   const [markEffective, setMarkEffective] = useState(false)
@@ -43,7 +43,7 @@ export function ConfirmPage({ id, go }: { id: string; go: (route: Route) => void
     }))
   }
 
-  function commit() {
+  async function commit() {
     const current = state.drafts.find((item) => item.id === id)
     if (!current) return
     const result = confirmDraft(state, current, {
@@ -57,6 +57,11 @@ export function ConfirmPage({ id, go }: { id: string; go: (route: Route) => void
       return
     }
     replace(result.state)
+    const saved = await whenSaved()
+    if (!saved.ok) {
+      setError(saved.message)
+      return
+    }
     setNotice(result.message)
     if (current.kind === "发票") go({ name: "invoices" })
     else if (current.kind === "付款凭证") go({ name: "payments" })
